@@ -1,0 +1,12 @@
+{
+    "emb_dim": 50,
+    "out_dim": 19,
+    "nlayers": 2,
+    "bidir": true,
+    "dropout": 0.1,
+    "hidden_dim": 10,
+    "epochs":5,
+    "gpu": false,
+    "batch_size": 1
+}
+
