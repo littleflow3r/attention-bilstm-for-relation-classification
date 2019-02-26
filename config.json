@@ -1,12 +1,12 @@
 {
-    "emb_dim": 50,
+    "emb_dim": 200,
     "out_dim": 19,
     "nlayers": 2,
     "bidir": true,
-    "dropout": 0.1,
-    "hidden_dim": 10,
-    "epochs":5,
-    "gpu": false,
-    "batch_size": 1
+    "dropout": 0.3,
+    "hidden_dim": 100,
+    "epochs":11,
+    "gpu": true,
+    "batch_size": 32
 }
 
