@@ -52,26 +52,41 @@ def accuracy(pred, label):
 def cat_accuracy(pred, label):
     max_preds = pred.argmax(dim=1, keepdim=True)
     correct = max_preds.squeeze(1).eq(label)
-    #print (correct.sum)
-    #print (torch.LongTensor([label.shape[0]]))
-    return correct.sum()/torch.LongTensor([label.shape[0]])
+    #correct = torch.LongTensor([0,4,0,0]).to(device).eq(label)
+    correct = correct.sum().unsqueeze(0)
+    bs = torch.LongTensor([label.shape[0]]).to(device)
+    acc = correct.item() / bs.item()
+    #return correct.sum()/torch.LongTensor([label.shape[0]])
+    return acc
 
 def train(model, it, lossf, optimizer):
     model.train()
     ep_loss = 0.0
-    ep_acc = 0
+    ep_acc = 0.0
     for b in it:
         optimizer.zero_grad()
         seq, label = b.text, b.label
         pred = model(seq)
-        #print (pred)
-        #print (pred, label)
         loss = lossf(pred, label)
         acc = cat_accuracy(pred, label)
         loss.backward()
         optimizer.step()
         ep_loss += loss.item()
-        ep_acc += acc.item()
+        ep_acc += acc
+    return ep_loss/ len(it), ep_acc/ len(it)
+
+def evaluate(model, it, lossf):
+    model.eval()
+    ep_loss = 0.0
+    ep_acc = 0.0
+    with torch.no_grad():
+	    for b in it:
+	        seq, label = b.text, b.label
+	        pred = model(seq)
+	        loss = lossf(pred, label)
+	        acc = cat_accuracy(pred, label)
+	        ep_loss += loss.item()
+	        ep_acc += acc
     return ep_loss/ len(it), ep_acc/ len(it)
 
 
@@ -85,8 +100,11 @@ if gpu:
     model.to(device)
 
 for ep in range(config['epochs']):
-    print ('training...')
+    print ('training epoch...', ep)
     tr_loss, tr_acc = train(model, train_it, lossf, optimizer)
-    #print ('TRAIN: loss %.2f' % (tr_loss))
-    print ('TRAIN: loss %.2f acc %.1f' % (tr_loss, tr_acc*100))
+    print ('TRAIN: loss %.2f acc %.1f' % (tr_loss, tr_acc))
+    vl_loss, vl_acc = evaluate(model, valid_it, lossf)
+    print('VALID: loss %.2f acc %.1f' % (vl_loss, vl_acc))
 
+te_loss, te_acc = evaluate(model, test_it, lossf)
+print('TEST: loss %.2f acc %.1f' % (te_loss, te_acc))
