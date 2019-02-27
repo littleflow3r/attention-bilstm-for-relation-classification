@@ -2,7 +2,7 @@ import sys
 import numpy as np
 import json
 import torchtext
-from torchtext import data, datasets
+from torchtext import data, datasets, vocab
 
 import torch
 import torch.nn as nn
@@ -27,8 +27,11 @@ LABEL = data.LabelField(use_vocab=True)
 
 dataset  = data.TabularDataset(path='all.csv', format='csv', fields=[('text', TEXT), ('label', LABEL)], skip_header=True)
 train_dt, valid_dt, test_dt = dataset.split(split_ratio=[0.7, 0.1, 0.2], random_state=random.getstate())
-TEXT.build_vocab(train_dt)
+
+vec = vocab.Vectors('../../study/glove.6B.50d.txt')
+TEXT.build_vocab(train_dt, vectors=vec)
 LABEL.build_vocab(train_dt)
+print ('vector size:',TEXT.vocab.vectors.size())
 
 bsize = config["batch_size"]
 gpu = config["gpu"]
@@ -91,7 +94,8 @@ def evaluate(model, it, lossf):
 
 
 vocab_size = len(TEXT.vocab)
-model = attbilstm(vocab_size, config)
+pretrained_vec = TEXT.vocab.vectors
+model = attbilstm(vocab_size, config, vec=pretrained_vec)
 #lossf = nn.BCEWithLogitsLoss()
 lossf = nn.CrossEntropyLoss()
 optimizer = optim.Adam(model.parameters())
