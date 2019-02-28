@@ -30,21 +30,6 @@ class attbilstm(nn.Module):
         #print ('UP:', new_hidden, new_hidden.shape)
         
         return new_hidden
-     
-    def attnetwork1(self, encoder_out, final_hidden):
-        print ('ddddd')
-        #print (encoder_out.size())
-        print ('fh:', final_hidden)
-        merged_state = torch.cat([s for s in final_hidden],1)
-        merged_state = (merged_state.unsqueeze(2))
-        #print (merged_state.size())
-        encoder_out = encoder_out.permute(1,0,2)
-        print (encoder_out.size(), merged_state.size())
-        weights = torch.bmm(encoder_out, merged_state)
-        weights = F.softmax(weights.squeeze(2)).unsqueeze(2)
-        new_hidden = torch.bmm(torch.transpose(encoder_out,1,2), weight).squeeze(2)
-        print ('BOTTOM:',new_hidden, new_hidden.shape)
-        return new_hidden
     
     def forward(self, sequence):
         emb_input = self.embedding(sequence)    
