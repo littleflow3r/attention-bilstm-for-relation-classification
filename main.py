@@ -1,6 +1,8 @@
 import sys
 import numpy as np
 import json
+from tqdm import tqdm
+
 import torchtext
 from torchtext import data, datasets, vocab
 
@@ -66,7 +68,7 @@ def train(model, it, lossf, optimizer):
     model.train()
     ep_loss = 0.0
     ep_acc = 0.0
-    for b in it:
+    for b in tqdm(it):
         optimizer.zero_grad()
         seq, label = b.text, b.label
         pred = model(seq)
